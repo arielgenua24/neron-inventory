@@ -2,8 +2,21 @@
 
 import React from "react";
 import { MONTHS, MONTH_NAMES_ES, MonthKey } from "@/lib/types";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Snowflake,
+  Sun,
+  Leaf,
+  Flower2,
+  Waves,
+  Heart,
+  Gift,
+  Coffee,
+  Sparkles
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MonthHeroProps {
   selectedYear: number;
@@ -43,6 +56,25 @@ const MONTH_FULL_NAMES: Record<MonthKey, string> = {
   december: "DICIEMBRE",
 };
 
+// Seasonal decorations for Argentine seasons
+const MONTH_DECORATIONS: Record<
+  MonthKey,
+  { emojis: string[]; icon: React.ComponentType<{ size?: number; className?: string }>; theme: string }
+> = {
+  january: { emojis: ["☀️", "🏖️", "🌊", "🍹", "😎"], icon: Sun, theme: "summer" }, // Verano - playa
+  february: { emojis: ["❤️", "💕", "🌹", "☀️", "🎉"], icon: Heart, theme: "summer" }, // Verano + San Valentín
+  march: { emojis: ["🍂", "🍁", "🌾", "🎒", "📚"], icon: Leaf, theme: "autumn" }, // Otoño comienza
+  april: { emojis: ["🍂", "🍁", "☂️", "🌧️", "🎃"], icon: Leaf, theme: "autumn" }, // Otoño pleno
+  may: { emojis: ["🍂", "❄️", "🧣", "☕", "🌙"], icon: Coffee, theme: "autumn" }, // Otoño tardío
+  june: { emojis: ["❄️", "☕", "🧣", "🌨️", "⛄"], icon: Snowflake, theme: "winter" }, // Invierno comienza
+  july: { emojis: ["❄️", "⛄", "🎿", "🌨️", "🔥"], icon: Snowflake, theme: "winter" }, // Invierno pleno
+  august: { emojis: ["❄️", "🌨️", "☃️", "🧤", "🎭"], icon: Snowflake, theme: "winter" }, // Invierno tardío
+  september: { emojis: ["🌸", "🌼", "🦋", "🌱", "✨"], icon: Flower2, theme: "spring" }, // Primavera comienza
+  october: { emojis: ["🌸", "🌺", "🌷", "🌻", "🐝"], icon: Flower2, theme: "spring" }, // Primavera plena
+  november: { emojis: ["🌸", "☀️", "🌈", "🦋", "🎈"], icon: Sparkles, theme: "spring" }, // Primavera tardía
+  december: { emojis: ["🎄", "🎅", "🎁", "✨", "☀️"], icon: Gift, theme: "summer" }, // Verano + Navidad
+};
+
 export const MonthHero: React.FC<MonthHeroProps> = ({
   selectedYear,
   selectedMonth,
@@ -52,6 +84,8 @@ export const MonthHero: React.FC<MonthHeroProps> = ({
   const [isYearModalOpen, setIsYearModalOpen] = React.useState(false);
   const currentYear = new Date().getFullYear();
   const palette = MONTH_PALETTES[selectedMonth];
+  const decorations = MONTH_DECORATIONS[selectedMonth];
+  const SeasonIcon = decorations.icon;
 
   // Generate year range (10 years before to 5 years after current year)
   const yearRange = Array.from({ length: 16 }, (_, i) => currentYear - 10 + i);
@@ -138,7 +172,7 @@ export const MonthHero: React.FC<MonthHeroProps> = ({
 
           {/* Main Content Area */}
           <div className="month-hero-main">
-            {/* Giant Month Display - LEFT ALIGNED */}
+            {/* Giant Month Display with Decorations */}
             <motion.div
               key={`${selectedMonth}-${selectedYear}`}
               initial={{ scale: 0.95, opacity: 0, x: -20 }}
@@ -147,7 +181,87 @@ export const MonthHero: React.FC<MonthHeroProps> = ({
               className="month-hero-display"
               style={{ color: palette.text }}
             >
-              <div className="month-hero-month">{MONTH_FULL_NAMES[selectedMonth]}</div>
+              <div className="month-hero-month-container">
+                <div className="month-hero-month">{MONTH_FULL_NAMES[selectedMonth]}</div>
+
+                {/* Seasonal Decorations - Right Side */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`decorations-${selectedMonth}`}
+                    initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="month-decorations"
+                  >
+                    {/* Large animated icon */}
+                    <motion.div
+                      className="season-icon"
+                      initial={{ rotate: -20, scale: 0 }}
+                      animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <SeasonIcon size={72} className="season-icon" />
+                    </motion.div>
+
+                    {/* Floating Emojis */}
+                    <AnimatePresence mode="wait">
+                      {decorations.emojis.map((emoji, index) => (
+                        <motion.div
+                          key={`${selectedMonth}-${emoji}-${index}`}
+                          className="floating-emoji"
+                          initial={{ opacity: 0, scale: 0, rotate: -180 }}
+                          animate={{
+                            opacity: [0, 1, 1, 0.8],
+                            scale: [0, 1.2, 1],
+                            rotate: [0, 10, -10, 0],
+                            y: [0, -10, 0],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            delay: index * 0.2,
+                            ease: "easeInOut",
+                          }}
+                          style={{
+                            position: "absolute",
+                            right: `${20 + index * 15}%`,
+                            top: `${20 + (index * 15) % 40}%`,
+                            fontSize: "2rem",
+                            opacity: 0.8,
+                          }}
+                        >
+                          {emoji}
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+
+                    {/* Seasonal Icon with pulse animation */}
+                    <motion.div
+                      key={`icon-${selectedMonth}`}
+                      initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 0.15, rotate: 0 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 20,
+                        duration: 0.6,
+                      }}
+                      className="month-hero-season-icon"
+                    >
+                      <SeasonIcon size={180} />
+                    </motion.div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
               <div className="month-hero-year">{selectedYear}</div>
             </motion.div>
 
@@ -307,6 +421,15 @@ export const MonthHero: React.FC<MonthHeroProps> = ({
           text-align: left;
           line-height: 0.9;
           text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+          position: relative;
+        }
+
+        .month-hero-month-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+          margin-bottom: 0.5rem;
         }
 
         .month-hero-month {
@@ -314,7 +437,39 @@ export const MonthHero: React.FC<MonthHeroProps> = ({
           font-weight: 900;
           letter-spacing: -0.04em;
           line-height: 0.85;
-          margin-bottom: 0.1em;
+          z-index: 2;
+          position: relative;
+        }
+
+        .month-decorations {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 120px;
+          height: 100px;
+          margin-left: auto;
+        }
+
+        .season-icon {
+          color: rgba(255, 255, 255, 0.9);
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+        }
+
+        .month-hero-season-icon {
+          position: absolute;
+          right: -40px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: rgba(255, 255, 255, 0.15);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .floating-emoji {
+          pointer-events: none;
+          user-select: none;
+          filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
         }
 
         .month-hero-year {
@@ -491,12 +646,42 @@ export const MonthHero: React.FC<MonthHeroProps> = ({
             gap: 0.75rem;
           }
 
+          .month-hero-month-container {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+
           .month-hero-month {
             font-size: clamp(3rem, 12vw, 6rem);
           }
 
           .month-hero-year {
             font-size: clamp(2rem, 8vw, 4rem);
+          }
+
+          .month-decorations {
+            min-width: 80px;
+            height: 80px;
+            margin-left: 0;
+          }
+
+          .season-icon {
+            width: 48px !important;
+            height: 48px !important;
+          }
+
+          .month-hero-season-icon {
+            right: -20px;
+          }
+
+          .month-hero-season-icon svg {
+            width: 120px !important;
+            height: 120px !important;
+          }
+
+          .floating-emoji {
+            font-size: 1.5rem !important;
           }
 
           .month-hero-pills {
