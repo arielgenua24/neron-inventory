@@ -251,6 +251,11 @@ export const useClients = () => {
         }
     }, [clients, modifyEmployee]);
 
+    // Actualizar tareas de un cliente
+    const updateClientTasks = useCallback((clientId: string, tasks: string) => {
+        return modifyClient(clientId, { tasks });
+    }, [modifyClient]);
+
     return {
         clients,
         isLoading,
@@ -264,6 +269,7 @@ export const useClients = () => {
         modifyEmployee,
         removeEmployee,
         updateEmployeeHonorario,
-        updateEmployeePaidStatus
+        updateEmployeePaidStatus,
+        updateClientTasks
     };
 };

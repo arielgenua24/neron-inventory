@@ -124,25 +124,25 @@ export default function Home() {
             align-items: center;
             justify-content: center;
             gap: 1rem;
+            background: hsl(var(--background));
           }
 
           .loader {
             width: 48px;
             height: 48px;
-            border: 4px solid var(--secondary);
-            border-top-color: var(--primary);
+            border: 4px solid hsl(var(--secondary));
+            border-top-color: hsl(var(--primary));
             border-radius: 50%;
             animation: spin 1s linear infinite;
           }
 
           @keyframes spin {
-            to {
-              transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
           }
 
           p {
-            color: var(--muted);
+            color: hsl(var(--muted-foreground));
+            font-weight: 500;
           }
         `}</style>
       </div>
@@ -150,14 +150,7 @@ export default function Home() {
   }
 
   return (
-    <main className="main-container">
-      <header className="header">
-        <div className="header-content">
-          <h1 className="title">Nerón Inventory</h1>
-          <p className="subtitle">Sistema de tracking de honorarios</p>
-        </div>
-      </header>
-
+    <main className="main-container animate-fade-in">
       <div className="content">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
@@ -229,38 +222,9 @@ export default function Home() {
       <style jsx>{`
         .main-container {
           min-height: 100vh;
-          background: #f9fafb;
+          background: hsl(var(--background));
+          padding-top: 2rem;
           padding-bottom: 5rem;
-        }
-
-        .header {
-          background: white;
-          border-bottom: 1px solid var(--border);
-          padding: 2rem 0;
-          margin-bottom: 2rem;
-        }
-
-        .header-content {
-          max-width: 1400px;
-          margin: 0 auto;
-          padding: 0 2rem;
-        }
-
-        .title {
-          font-size: 2rem;
-          font-weight: 700;
-          margin: 0;
-          color: var(--foreground);
-          background: linear-gradient(135deg, var(--primary) 0%, #0052cc 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .subtitle {
-          margin: 0.5rem 0 0;
-          color: var(--muted);
-          font-size: 0.9375rem;
         }
 
         .filters-container {
@@ -274,26 +238,29 @@ export default function Home() {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          padding: 0.5rem 1rem;
-          background: white;
-          border: 1px solid var(--border);
+          padding: 0.625rem 1.25rem;
+          background: hsl(var(--card));
+          border: 1px solid hsl(var(--border));
           border-radius: var(--radius);
           font-size: 0.875rem;
           font-weight: 500;
-          color: var(--muted);
+          color: hsl(var(--muted-foreground));
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .unpaid-filter-button:hover {
-          background: var(--secondary);
-          color: var(--foreground);
+          background: hsl(var(--secondary));
+          color: hsl(var(--foreground));
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .unpaid-filter-button.active {
-          background: #fee2e2;
-          border-color: #ef4444;
-          color: #b91c1c;
+          background: hsl(var(--destructive) / 0.1);
+          border-color: hsl(var(--destructive));
+          color: hsl(var(--destructive));
         }
 
         .content {
@@ -302,15 +269,38 @@ export default function Home() {
           padding: 0 2rem;
         }
 
+        .floating-button {
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border: none;
+          box-shadow: 0 10px 15px -3px hsl(var(--primary) / 0.4);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          z-index: 50;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .floating-button:hover {
+          transform: scale(1.1) rotate(90deg);
+          box-shadow: 0 20px 25px -5px hsl(var(--primary) / 0.4);
+        }
+
+        .floating-button:active {
+          transform: scale(0.95);
+        }
 
         @media (max-width: 768px) {
-          .header-content,
           .content {
             padding: 0 1rem;
-          }
-
-          .title {
-            font-size: 1.5rem;
           }
         }
       `}</style>

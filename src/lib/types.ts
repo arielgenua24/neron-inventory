@@ -2,8 +2,8 @@
  * Tipos de datos para el sistema de tracking de honorarios
  */
 
-export type MonthKey = 
-  | 'january' | 'february' | 'march' | 'april' | 'may' | 'june' 
+export type MonthKey =
+  | 'january' | 'february' | 'march' | 'april' | 'may' | 'june'
   | 'july' | 'august' | 'september' | 'october' | 'november' | 'december';
 
 export type MonthlyRecord = {
@@ -25,6 +25,7 @@ export type Employee = {
   monthlyRecords: MonthlyRecords;
   createdAt: string;
   updatedAt: string;
+  tasks?: string;
 };
 
 export type Client = {
@@ -37,6 +38,7 @@ export type Client = {
   employees: Employee[];
   createdAt: string;
   updatedAt: string;
+  tasks?: string;
 };
 
 export type Database = {

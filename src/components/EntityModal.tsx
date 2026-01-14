@@ -180,59 +180,96 @@ export const EntityModal: React.FC<EntityModalProps> = ({
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
           padding: 1rem;
+          animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         .modal-content {
-          background: white;
-          border-radius: var(--radius);
-          max-width: 500px;
+          background: hsl(var(--card));
+          border: 1px solid hsl(var(--border) / 0.3);
+          border-radius: calc(var(--radius) + 8px);
+          max-width: 520px;
           width: 100%;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          box-shadow:
+            0 24px 48px -12px rgba(0, 0, 0, 0.18),
+            0 16px 32px -8px rgba(0, 0, 0, 0.12),
+            0 0 1px rgba(0, 0, 0, 0.05);
+          animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.96) translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
         }
 
         .modal-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 1.5rem;
-          border-bottom: 1px solid var(--border);
+          padding: 1.75rem 1.75rem 1.25rem;
+          border-bottom: 1px solid hsl(var(--border) / 0.5);
         }
 
         .modal-header h2 {
           margin: 0;
-          font-size: 1.25rem;
-          font-weight: 600;
+          font-size: 1.125rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          color: hsl(var(--foreground));
         }
 
         .close-button {
-          background: none;
-          border: none;
+          background: hsl(var(--secondary) / 0.6);
+          border: 1px solid hsl(var(--border) / 0.3);
+          border-radius: 8px;
           cursor: pointer;
-          color: var(--muted);
-          padding: 0.25rem;
+          color: hsl(var(--muted-foreground));
+          padding: 0.375rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 4px;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .close-button:hover {
-          background: var(--secondary);
-          color: var(--foreground);
+          background: hsl(var(--secondary));
+          border-color: hsl(var(--border));
+          color: hsl(var(--foreground));
+          transform: scale(1.05);
+        }
+
+        .close-button:active {
+          transform: scale(0.98);
         }
 
         .modal-form {
-          padding: 1.5rem;
+          padding: 1.75rem;
         }
 
         .form-group {
-          margin-bottom: 1.25rem;
+          margin-bottom: 1.5rem;
         }
 
         .form-group:last-of-type {
@@ -242,69 +279,120 @@ export const EntityModal: React.FC<EntityModalProps> = ({
         .form-group label {
           display: block;
           margin-bottom: 0.5rem;
-          font-weight: 500;
-          font-size: 0.875rem;
-          color: var(--foreground);
+          font-weight: 600;
+          font-size: 0.8125rem;
+          letter-spacing: -0.01em;
+          color: hsl(var(--foreground));
         }
 
         .required {
-          color: var(--danger);
+          color: hsl(var(--destructive));
         }
 
         .form-group input {
           width: 100%;
-          padding: 0.75rem;
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
+          padding: 0.875rem 1rem;
+          border: 1.5px solid hsl(var(--border) / 0.5);
+          border-radius: 10px;
           font-size: 0.9375rem;
-          transition: all 0.2s ease;
+          font-weight: 500;
+          background: hsl(var(--background));
+          color: hsl(var(--foreground));
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .form-group input:hover {
+          border-color: hsl(var(--border));
         }
 
         .form-group input:focus {
           outline: none;
-          border-color: var(--primary);
-          box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+          border-color: hsl(var(--primary));
+          background: hsl(var(--card));
+          box-shadow:
+            0 0 0 3.5px hsl(var(--primary) / 0.12),
+            0 2px 4px rgba(0, 0, 0, 0.04);
+          transform: translateY(-1px);
         }
 
         .form-group input::placeholder {
-          color: var(--muted);
+          color: hsl(var(--muted-foreground) / 0.5);
+          font-weight: 400;
         }
 
         .form-actions {
           display: flex;
           gap: 0.75rem;
           justify-content: flex-end;
-          margin-top: 1.5rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid var(--border);
+          margin-top: 2rem;
+          padding-top: 1.75rem;
+          border-top: 1px solid hsl(var(--border) / 0.5);
         }
 
         .button-secondary,
         .button-primary {
-          padding: 0.625rem 1.25rem;
-          border-radius: var(--radius);
+          padding: 0.75rem 1.5rem;
+          border-radius: 10px;
           font-size: 0.875rem;
-          font-weight: 600;
+          font-weight: 700;
+          letter-spacing: -0.01em;
           cursor: pointer;
           border: none;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .button-secondary {
-          background: var(--secondary);
-          color: var(--foreground);
+          background: hsl(var(--secondary));
+          color: hsl(var(--foreground));
+          border: 1px solid hsl(var(--border) / 0.4);
         }
 
         .button-secondary:hover {
-          background: #e5e5e5;
+          background: hsl(var(--secondary) / 0.8);
+          border-color: hsl(var(--border));
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .button-secondary:active {
+          transform: translateY(0);
         }
 
         .button-primary {
-          background: var(--primary);
-          color: white;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          box-shadow: 0 2px 8px hsl(var(--primary) / 0.25);
         }
 
         .button-primary:hover {
-          background: var(--primary-hover);
+          background: hsl(var(--primary) / 0.9);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px hsl(var(--primary) / 0.35);
+        }
+
+        .button-primary:active {
+          transform: translateY(0);
+        }
+
+        @media (max-width: 640px) {
+          .modal-header {
+            padding: 1.5rem 1.25rem 1rem;
+          }
+
+          .modal-form {
+            padding: 1.5rem 1.25rem;
+          }
+
+          .form-actions {
+            flex-direction: column-reverse;
+          }
+
+          .button-secondary,
+          .button-primary {
+            width: 100%;
+          }
         }
       `}</style>
     </div>
