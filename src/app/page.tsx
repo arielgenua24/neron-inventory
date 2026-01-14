@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useClients } from '@/hooks/useClients';
 import { MonthKey, Client, Employee } from '@/lib/types';
 import { SearchBar } from '@/components/SearchBar';
-import { MonthSelector } from '@/components/MonthSelector';
+import { MonthHero } from '@/components/MonthHero';
 import { ClientTable } from '@/components/ClientTable';
 import { EntityModal } from '@/components/EntityModal';
 
@@ -154,7 +154,7 @@ export default function Home() {
       <div className="content">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-        <MonthSelector
+        <MonthHero
           selectedYear={selectedYear}
           selectedMonth={selectedMonth}
           onMonthChange={setSelectedMonth}
