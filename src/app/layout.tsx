@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 import { Navbar } from "@/components/Navbar";
+import { GeminiChat } from "@/components/GeminiChat";
 
 export default function RootLayout({
   children,
@@ -27,6 +28,7 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
+        <GeminiChat />
       </body>
     </html>
   );
