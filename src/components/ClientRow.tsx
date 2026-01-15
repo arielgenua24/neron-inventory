@@ -6,6 +6,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FileText } from 'lucide-react';
 import { Client, Employee, MonthKey } from '@/lib/types';
 import { getHonorarioForMonth, getPaidStatusForMonth } from '@/lib/honorarios-logic';
 import { EmployeeRow } from './EmployeeRow';
@@ -64,6 +66,7 @@ export const ClientRow: React.FC<ClientRowProps> = ({
   onDeleteEmployee,
   onAddEmployee
 }) => {
+  const router = useRouter();
   const [isEditingAmount, setIsEditingAmount] = useState(false);
   const [editAmount, setEditAmount] = useState('');
 
@@ -102,6 +105,10 @@ export const ClientRow: React.FC<ClientRowProps> = ({
 
   const handlePaidToggle = () => {
     onUpdatePaidStatus(client.id, year, month, !isPaid);
+  };
+
+  const handleInvoiceClick = () => {
+    router.push(`/factura/${client.id}?year=${year}&month=${month}`);
   };
 
   const formatCurrency = (value: number) => {
@@ -193,6 +200,13 @@ export const ClientRow: React.FC<ClientRowProps> = ({
         </div>
 
         <div className="table-cell actions">
+          <button
+            onClick={handleInvoiceClick}
+            className="action-button"
+            title="Generar Factura"
+          >
+            <FileText width={16} height={16} />
+          </button>
           <button
             onClick={() => onEdit(client)}
             className="action-button"
