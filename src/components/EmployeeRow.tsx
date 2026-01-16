@@ -174,7 +174,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({
           grid-template-columns: 40px 1fr 150px 150px 100px 120px 100px 100px;
           align-items: center;
           padding: 0.5rem 1rem;
-          background: #fffbeb; /* Cream yellow background */
+          background: #2392ff2e; /* Cream yellow background */
           border-bottom: 1px solid var(--border);
           gap: 1rem;
         }

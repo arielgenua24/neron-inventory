@@ -86,16 +86,16 @@ export default function FacturaPage() {
       const employeeItems = client.employees.map(emp => {
         const amount = getHonorarioForMonth(emp.monthlyRecords, Number(year), month);
         employeesTotal += amount;
-        return `<li style="margin: 0.25rem 0; display: flex; justify-content: space-between;">
-          <span>${emp.name}</span>
-          <span style="font-weight: 600;">${formatCurrency(amount)}</span>
+        return `<li style="margin: 0.15rem 0; display: flex; justify-content: space-between; padding: 0.25rem 0.5rem; background: hsl(var(--secondary) / 0.3); border-radius: 4px;">
+          <span style="font-size: 0.9rem;">${emp.name}</span>
+          <span style="font-weight: 600; font-size: 0.9rem;">${formatCurrency(amount)}</span>
         </li>`;
       }).join('');
 
       employeesHTML = `
-        <div style="margin-bottom: 1.5rem;">
-          <p style="font-weight: 600; margin-bottom: 0.75rem; color: hsl(var(--foreground));">Empleados:</p>
-          <ul style="list-style: none; padding-left: 1rem; margin: 0;">
+        <div style="margin-bottom: 1rem;">
+          <p style="font-weight: 600; margin-bottom: 0.5rem; color: hsl(var(--foreground)); font-size: 0.95rem;">Empleados:</p>
+          <ul style="list-style: none; padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 0.15rem;">
             ${employeeItems}
           </ul>
         </div>
@@ -502,53 +502,116 @@ export default function FacturaPage() {
             margin: 0;
           }
 
-          body {
+          html, body {
             margin: 0;
             padding: 0;
+            width: 297mm;
+            height: 210mm;
           }
 
           .invoice-page {
-            background: white;
+            background: white !important;
             padding: 0;
             margin: 0;
             min-height: 0;
+            width: 297mm;
+            height: 210mm;
           }
 
           /* Mostrar contenedor de impresión */
           .print-container {
-            display: flex;
+            display: flex !important;
             width: 297mm;
             height: 210mm;
             margin: 0;
             padding: 0;
             background: white;
+            flex-direction: row;
           }
 
-          /* Cada factura toma 50% del ancho */
+          /* Cada wrapper toma 50% del ancho (148.5mm) y altura completa (210mm) */
           .print-invoice-wrapper {
-            width: 50%;
-            height: 100%;
+            width: 148.5mm;
+            height: 210mm;
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
           }
 
-          /* Rotar cada factura 90 grados */
+          /* Rotar cada factura 90 grados en sentido horario */
           .print-invoice {
+            position: absolute;
             width: 210mm;
-            height: 148.5mm;
-            transform: rotate(90deg);
+            height: 140mm;
+            transform: rotate(90deg) translateX(0);
             transform-origin: center center;
-            padding: 1.5rem;
-            font-size: 10pt;
-            line-height: 1.6;
+            padding: 8mm;
+            font-size: 9pt;
+            line-height: 1.5;
             overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
           }
 
-          /* Ajustar estilos para impresión */
+          /* Ajustar tamaños de texto para impresión */
+          .print-invoice h1 {
+            font-size: 16pt !important;
+            margin-bottom: 8pt !important;
+          }
+
+          .print-invoice h2 {
+            font-size: 11pt !important;
+            margin-bottom: 6pt !important;
+          }
+
+          .print-invoice p {
+            font-size: 9pt !important;
+            margin: 2pt 0 !important;
+          }
+
+          .print-invoice ul {
+            margin: 4pt 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1pt !important;
+          }
+
+          .print-invoice li {
+            font-size: 8pt !important;
+            margin: 0 !important;
+            padding: 2pt 4pt !important;
+            line-height: 1.3 !important;
+          }
+
+          .print-invoice li span {
+            font-size: 8pt !important;
+          }
+
+          /* Contenedor de total más compacto */
+          .print-invoice > div:last-child {
+            margin-top: 8pt !important;
+            padding: 8pt !important;
+          }
+
+          .print-invoice > div:last-child p {
+            font-size: 13pt !important;
+          }
+
+          /* Evitar saltos de página */
           .print-invoice * {
             page-break-inside: avoid;
+          }
+
+          /* Quitar fondos y bordes para impresión limpia */
+          .print-invoice div[style*="background"] {
+            background: transparent !important;
+          }
+
+          .print-invoice div[style*="border"] {
+            border-color: #ddd !important;
           }
         }
 
