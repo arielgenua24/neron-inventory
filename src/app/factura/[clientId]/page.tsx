@@ -72,7 +72,8 @@ export default function FacturaPage() {
     return `${day}/${monthNum}/${yearNum}`;
   };
 
-  // Generar contenido HTML de la factura
+
+  // Generar contenido HTML de la factura (versión editable con inline styles)
   const generateInvoiceHTML = () => {
     if (!client || !year || !month) return '';
 
@@ -146,59 +147,12 @@ export default function FacturaPage() {
     `;
   };
 
-  // Generar HTML compacto para impresión (sin inline styles de spacing)
-  const generatePrintInvoiceHTML = () => {
-    if (!client || !year || !month) return '';
-
-    const monthName = MONTH_FULL_NAMES[month];
-    const currentDate = getCurrentDate();
-    const clientAmount = getHonorarioForMonth(client.monthlyRecords, Number(year), month);
-
-    let employeesHTML = '';
-    let employeesTotal = 0;
-
-    if (client.employees.length > 0) {
-      const employeeItems = client.employees.map(emp => {
-        const amount = getHonorarioForMonth(emp.monthlyRecords, Number(year), month);
-        employeesTotal += amount;
-        return `<div class="print-line"><span>${emp.name}</span><span>${formatCurrency(amount)}</span></div>`;
-      }).join('');
-
-      employeesHTML = `
-        <div class="print-employees-label">Empleados:</div>
-        ${employeeItems}
-      `;
-    }
-
-    const total = clientAmount + employeesTotal;
-
-    return `
-      <div class="print-header">FACTURA</div>
-      <div class="print-info">
-        <div><strong>Período:</strong> ${monthName} de ${year}</div>
-        <div><strong>Fecha:</strong> ${currentDate}</div>
-      </div>
-      <div class="print-client">
-        <div><strong>Cliente:</strong> ${client.name}</div>
-        <div><strong>CUIT:</strong> ${formatCUIT(client.cuit)}</div>
-      </div>
-      <div class="print-detail">
-        <div class="print-detail-title">DETALLE DE HONORARIOS</div>
-        <div class="print-line print-titular"><span>${client.name} (Titular)</span><span>${formatCurrency(clientAmount)}</span></div>
-        ${employeesHTML}
-      </div>
-      <div class="print-total">
-        <span>TOTAL:</span>
-        <span>${formatCurrency(total)}</span>
-      </div>
-    `;
-  };
-
   // Inicializar contenido editable al cargar
   useEffect(() => {
     if (client && year && month) {
-      setEditableContent(generateInvoiceHTML());
-      setPrintContent(generatePrintInvoiceHTML());
+      const invoiceHTML = generateInvoiceHTML();
+      setEditableContent(invoiceHTML);
+      setPrintContent(invoiceHTML);
     }
   }, [client, year, month]);
 
@@ -207,7 +161,7 @@ export default function FacturaPage() {
     if (isEditing && contentRef.current) {
       const newContent = contentRef.current.innerHTML;
       setEditableContent(newContent);
-      // También actualizar el contenido de impresión con los cambios editados
+      // Actualizar también el contenido de impresión para reflejar las ediciones
       setPrintContent(newContent);
     }
     setIsEditing(!isEditing);
@@ -616,107 +570,23 @@ export default function FacturaPage() {
           /* Rotar cada factura 90 grados en sentido horario */
           .print-invoice {
             position: absolute;
-            width: 125mm;
-            height: 205mm;
+            width: 148.5mm;
+            height: 210mm;
             transform: rotate(90deg);
             transform-origin: top left;
             top: 0;
-            left: 144mm;
-            padding: 4mm;
-            font-size: 9pt;
+            left: 148.5mm;
+            padding: 5mm;
+            font-size: 8pt;
             line-height: 1.3;
             overflow: hidden;
             box-sizing: border-box;
             background: white;
             font-family: system-ui, -apple-system, sans-serif;
+            margin-left: 45mm;
           }
 
-          /* === Estilos globales para clases del HTML de impresión === */
-          /* Usamos :global() porque el HTML se inyecta con dangerouslySetInnerHTML */
-
-          :global(.print-header) {
-            font-size: 16pt;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 4mm;
-            padding-bottom: 2mm;
-            border-bottom: 0.5mm solid #000;
-            letter-spacing: 0.15em;
-          }
-
-          :global(.print-info) {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 3mm;
-            padding: 2mm 0;
-            border-bottom: 0.3mm dotted #666;
-          }
-
-          :global(.print-info div) {
-            font-size: 9pt;
-          }
-
-          :global(.print-client) {
-            margin-bottom: 3mm;
-            padding: 2mm 0;
-            border-bottom: 0.3mm dotted #666;
-          }
-
-          :global(.print-client div) {
-            font-size: 9pt;
-            margin: 1mm 0;
-          }
-
-          :global(.print-detail) {
-            margin-bottom: 3mm;
-          }
-
-          :global(.print-detail-title) {
-            font-size: 10pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 2mm;
-            padding-bottom: 1mm;
-            border-bottom: 0.3mm solid #000;
-          }
-
-          :global(.print-line) {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9pt;
-            padding: 1.5mm 0;
-            border-bottom: 0.2mm dotted #ccc;
-          }
-
-          :global(.print-line span:last-child) {
-            font-weight: 600;
-          }
-
-          :global(.print-titular) {
-            font-weight: 500;
-          }
-
-          :global(.print-employees-label) {
-            font-size: 9pt;
-            font-weight: 600;
-            margin: 3mm 0 1mm 0;
-          }
-
-          :global(.print-total) {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12pt;
-            font-weight: 800;
-            padding: 3mm 0;
-            margin-top: 4mm;
-            border-top: 0.5mm solid #000;
-          }
-
-          :global(.print-total span:first-child) {
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-          }
+          /* El contenido usa inline styles, solo mantenemos el layout de impresión */
         }
 
         /* Responsive */
