@@ -206,13 +206,13 @@ export const ClientTable: React.FC<ClientTableProps> = ({
   return (
     <div className="table-container">
       <div className="table-header">
-        <div className="header-cell client-name">Client Name</div>
+        <div className="header-cell client-name">Cliente</div>
         <div className="header-cell cuit">CUIT</div>
-        <div className="header-cell contact">Contact</div>
-        <div className="header-cell relations">Relations</div>
-        <div className="header-cell amount">Amount</div>
-        <div className="header-cell status">Status</div>
-        <div className="header-cell actions">Actions</div>
+        <div className="header-cell categoria-fiscal">Categoría Fiscal</div>
+        <div className="header-cell relations">Relaciones</div>
+        <div className="header-cell amount">Monto</div>
+        <div className="header-cell status">Estado</div>
+        <div className="header-cell actions">Acciones</div>
       </div>
 
       <div className="table-body">
@@ -272,7 +272,7 @@ export const ClientTable: React.FC<ClientTableProps> = ({
             gap: 0.5rem;
           }
 
-          .contact,
+          .categoria-fiscal,
           .relations {
             display: none;
           }

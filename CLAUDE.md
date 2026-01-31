@@ -21,7 +21,7 @@ npm run start    # Start production server
 
 ### Data Layer
 
-**Storage**: Uses browser localStorage (not a backend database). The storage service in `src/lib/storage.ts` abstracts all CRUD operations with a design that anticipates future migration to Supabase/Firebase.
+**Storage**: Uses Firebase Firestore for cloud persistence. The storage service in `src/lib/storage-firestore.ts` abstracts all CRUD operations. The original localStorage implementation (`src/lib/storage.ts`) is preserved for reference/rollback. All storage operations are async and return Promises.
 
 **Core Types** (`src/lib/types.ts`):
 - `Client`: Has name, CUIT (Argentine tax ID), ARCA password, contact info, monthly fee records, and an array of `Employee`s
@@ -30,9 +30,19 @@ npm run start    # Start production server
 
 **Fee Propagation Logic** (`src/lib/honorarios-logic.ts`): When displaying fees for a month without an explicit record, the system looks back to find the most recent recorded amount. This allows setting a fee once and having it apply to future months until changed.
 
+**Firebase Configuration** (`src/lib/firebase.ts`): Initializes Firebase app and exports Firestore instance. Requires environment variables in `.env.local` (see `.env.local.example`). The storage adapter includes a 5-second cache to minimize Firestore reads.
+
+**Firestore Schema**:
+- Collection: `clients` - Each document represents a Client with nested employees and monthlyRecords as maps/arrays
+- Document structure matches the Client type exactly (see `FIRESTORE_DESIGN.md` for details)
+
 ### State Management
 
-The `useClients` hook (`src/hooks/useClients.ts`) is the central state manager. All components consume this hook rather than accessing storage directly. It provides reactive state and all CRUD operations for clients, employees, and their monthly records.
+The `useClients` hook (`src/hooks/useClients.ts`) is the central state manager. All components consume this hook rather than accessing storage directly. It provides reactive state and all async CRUD operations for clients, employees, and their monthly records.
+
+### AI Integration
+
+**Gemini Chat** (`src/components/GeminiChat.tsx`): A floating chat interface powered by Google Gemini 2.5 Flash. The chat fetches all clients data from Firestore and sends it as context in the system instruction, allowing the AI to answer questions about clients, payments, and fees. API route: `/api/chat/route.ts`.
 
 ### Pages (App Router)
 

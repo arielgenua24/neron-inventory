@@ -54,8 +54,14 @@ REGLAS IMPORTANTES:
         return NextResponse.json({ response: text });
     } catch (error) {
         console.error("Gemini API Error:", error);
+
+        // Return more detailed error in development
+        const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
         return NextResponse.json(
-            { error: "Error al procesar tu consulta. Por favor, intentá de nuevo." },
+            {
+                error: "Error al procesar tu consulta. Por favor, intentá de nuevo.",
+                details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            },
             { status: 500 }
         );
     }

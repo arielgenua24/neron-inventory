@@ -153,10 +153,14 @@ export const ClientRow: React.FC<ClientRowProps> = ({
 
         <div className="table-cell cuit">{formatCUIT(client.cuit)}</div>
 
-        <div className="table-cell arca-pass">
-          <span className="arca-password-text">
-            {client.arcaPassword}
-          </span>
+        <div className="table-cell categoria-fiscal">
+          {client.categoriaFiscal ? (
+            <span className="categoria-badge">
+              {client.categoriaFiscal}
+            </span>
+          ) : (
+            <span className="no-categoria">-</span>
+          )}
         </div>
 
         <div className="table-cell relations">
@@ -330,13 +334,19 @@ export const ClientRow: React.FC<ClientRowProps> = ({
           font-weight: 600;
         }
 
-        .arca-password-text {
-          font-family: monospace;
-          background: #f1f5f9;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-          color: #334155;
+        .categoria-badge {
+          background: #dbeafe;
+          color: #1e40af;
+          padding: 0.3rem 0.6rem;
+          border-radius: 6px;
           font-weight: 600;
+          font-size: 0.75rem;
+          display: inline-block;
+        }
+
+        .no-categoria {
+          color: #94a3b8;
+          font-size: 0.875rem;
         }
 
         .employee-count {

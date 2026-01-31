@@ -48,6 +48,7 @@ export default function FacturaPage() {
   const { clients, isLoading } = useClients();
   const [isEditing, setIsEditing] = useState(false);
   const [editableContent, setEditableContent] = useState('');
+  const [printContent, setPrintContent] = useState('');
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Buscar el cliente
@@ -145,17 +146,69 @@ export default function FacturaPage() {
     `;
   };
 
+  // Generar HTML compacto para impresión (sin inline styles de spacing)
+  const generatePrintInvoiceHTML = () => {
+    if (!client || !year || !month) return '';
+
+    const monthName = MONTH_FULL_NAMES[month];
+    const currentDate = getCurrentDate();
+    const clientAmount = getHonorarioForMonth(client.monthlyRecords, Number(year), month);
+
+    let employeesHTML = '';
+    let employeesTotal = 0;
+
+    if (client.employees.length > 0) {
+      const employeeItems = client.employees.map(emp => {
+        const amount = getHonorarioForMonth(emp.monthlyRecords, Number(year), month);
+        employeesTotal += amount;
+        return `<div class="print-line"><span>${emp.name}</span><span>${formatCurrency(amount)}</span></div>`;
+      }).join('');
+
+      employeesHTML = `
+        <div class="print-employees-label">Empleados:</div>
+        ${employeeItems}
+      `;
+    }
+
+    const total = clientAmount + employeesTotal;
+
+    return `
+      <div class="print-header">FACTURA</div>
+      <div class="print-info">
+        <div><strong>Período:</strong> ${monthName} de ${year}</div>
+        <div><strong>Fecha:</strong> ${currentDate}</div>
+      </div>
+      <div class="print-client">
+        <div><strong>Cliente:</strong> ${client.name}</div>
+        <div><strong>CUIT:</strong> ${formatCUIT(client.cuit)}</div>
+      </div>
+      <div class="print-detail">
+        <div class="print-detail-title">DETALLE DE HONORARIOS</div>
+        <div class="print-line print-titular"><span>${client.name} (Titular)</span><span>${formatCurrency(clientAmount)}</span></div>
+        ${employeesHTML}
+      </div>
+      <div class="print-total">
+        <span>TOTAL:</span>
+        <span>${formatCurrency(total)}</span>
+      </div>
+    `;
+  };
+
   // Inicializar contenido editable al cargar
   useEffect(() => {
     if (client && year && month) {
       setEditableContent(generateInvoiceHTML());
+      setPrintContent(generatePrintInvoiceHTML());
     }
   }, [client, year, month]);
 
   // Handlers
   const handleEditToggle = () => {
     if (isEditing && contentRef.current) {
-      setEditableContent(contentRef.current.innerHTML);
+      const newContent = contentRef.current.innerHTML;
+      setEditableContent(newContent);
+      // También actualizar el contenido de impresión con los cambios editados
+      setPrintContent(newContent);
     }
     setIsEditing(!isEditing);
   };
@@ -371,13 +424,13 @@ export default function FacturaPage() {
         <div className="print-invoice-wrapper">
           <div
             className="print-invoice"
-            dangerouslySetInnerHTML={{ __html: editableContent }}
+            dangerouslySetInnerHTML={{ __html: printContent }}
           />
         </div>
         <div className="print-invoice-wrapper">
           <div
             className="print-invoice"
-            dangerouslySetInnerHTML={{ __html: editableContent }}
+            dangerouslySetInnerHTML={{ __html: printContent }}
           />
         </div>
       </div>
@@ -491,22 +544,45 @@ export default function FacturaPage() {
         /* Estilos de impresión */
         @media print {
           /* Ocultar toolbar y vista de pantalla */
-          .toolbar,
+          .toolbar {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .screen-only {
             display: none !important;
           }
 
-          /* Configurar página */
+          /* Ocultar navbar y elementos de navegación */
+          :global(nav),
+          :global(header),
+          :global([role="navigation"]) {
+            display: none !important;
+          }
+
+          /* Ocultar chatbot y botones flotantes */
+          :global(button[style*="position: fixed"]),
+          :global(div[style*="position: fixed"]),
+          :global(.floating-button),
+          :global([class*="chat"]),
+          :global([class*="Chat"]) {
+            display: none !important;
+          }
+
+          /* Configurar página - A4 portrait */
           @page {
-            size: A4 landscape;
+            size: A4 portrait;
             margin: 0;
           }
 
           html, body {
             margin: 0;
             padding: 0;
-            width: 297mm;
-            height: 210mm;
+            width: 210mm;
+            height: 297mm;
           }
 
           .invoice-page {
@@ -514,104 +590,132 @@ export default function FacturaPage() {
             padding: 0;
             margin: 0;
             min-height: 0;
-            width: 297mm;
-            height: 210mm;
+            width: 210mm;
+            height: 297mm;
           }
 
-          /* Mostrar contenedor de impresión */
+          /* Contenedor de impresión - dos facturas apiladas verticalmente */
           .print-container {
             display: flex !important;
-            width: 297mm;
-            height: 210mm;
+            flex-direction: column;
+            width: 210mm;
+            height: 297mm;
             margin: 0;
             padding: 0;
             background: white;
-            flex-direction: row;
           }
 
-          /* Cada wrapper toma 50% del ancho (148.5mm) y altura completa (210mm) */
+          /* Cada wrapper toma la mitad de la altura (148.5mm) */
           .print-invoice-wrapper {
-            width: 148.5mm;
-            height: 210mm;
+            width: 210mm;
+            height: 148.5mm;
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
           }
 
           /* Rotar cada factura 90 grados en sentido horario */
           .print-invoice {
             position: absolute;
-            width: 210mm;
-            height: 140mm;
-            transform: rotate(90deg) translateX(0);
-            transform-origin: center center;
-            padding: 8mm;
+            width: 125mm;
+            height: 205mm;
+            transform: rotate(90deg);
+            transform-origin: top left;
+            top: 0;
+            left: 144mm;
+            padding: 4mm;
             font-size: 9pt;
-            line-height: 1.5;
+            line-height: 1.3;
             overflow: hidden;
             box-sizing: border-box;
+            background: white;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+
+          /* === Estilos globales para clases del HTML de impresión === */
+          /* Usamos :global() porque el HTML se inyecta con dangerouslySetInnerHTML */
+
+          :global(.print-header) {
+            font-size: 16pt;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 4mm;
+            padding-bottom: 2mm;
+            border-bottom: 0.5mm solid #000;
+            letter-spacing: 0.15em;
+          }
+
+          :global(.print-info) {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            margin-bottom: 3mm;
+            padding: 2mm 0;
+            border-bottom: 0.3mm dotted #666;
           }
 
-          /* Ajustar tamaños de texto para impresión */
-          .print-invoice h1 {
-            font-size: 16pt !important;
-            margin-bottom: 8pt !important;
+          :global(.print-info div) {
+            font-size: 9pt;
           }
 
-          .print-invoice h2 {
-            font-size: 11pt !important;
-            margin-bottom: 6pt !important;
+          :global(.print-client) {
+            margin-bottom: 3mm;
+            padding: 2mm 0;
+            border-bottom: 0.3mm dotted #666;
           }
 
-          .print-invoice p {
-            font-size: 9pt !important;
-            margin: 2pt 0 !important;
+          :global(.print-client div) {
+            font-size: 9pt;
+            margin: 1mm 0;
           }
 
-          .print-invoice ul {
-            margin: 4pt 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 1pt !important;
+          :global(.print-detail) {
+            margin-bottom: 3mm;
           }
 
-          .print-invoice li {
-            font-size: 8pt !important;
-            margin: 0 !important;
-            padding: 2pt 4pt !important;
-            line-height: 1.3 !important;
+          :global(.print-detail-title) {
+            font-size: 10pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 2mm;
+            padding-bottom: 1mm;
+            border-bottom: 0.3mm solid #000;
           }
 
-          .print-invoice li span {
-            font-size: 8pt !important;
+          :global(.print-line) {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9pt;
+            padding: 1.5mm 0;
+            border-bottom: 0.2mm dotted #ccc;
           }
 
-          /* Contenedor de total más compacto */
-          .print-invoice > div:last-child {
-            margin-top: 8pt !important;
-            padding: 8pt !important;
+          :global(.print-line span:last-child) {
+            font-weight: 600;
           }
 
-          .print-invoice > div:last-child p {
-            font-size: 13pt !important;
+          :global(.print-titular) {
+            font-weight: 500;
           }
 
-          /* Evitar saltos de página */
-          .print-invoice * {
-            page-break-inside: avoid;
+          :global(.print-employees-label) {
+            font-size: 9pt;
+            font-weight: 600;
+            margin: 3mm 0 1mm 0;
           }
 
-          /* Quitar fondos y bordes para impresión limpia */
-          .print-invoice div[style*="background"] {
-            background: transparent !important;
+          :global(.print-total) {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12pt;
+            font-weight: 800;
+            padding: 3mm 0;
+            margin-top: 4mm;
+            border-top: 0.5mm solid #000;
           }
 
-          .print-invoice div[style*="border"] {
-            border-color: #ddd !important;
+          :global(.print-total span:first-child) {
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
           }
         }
 

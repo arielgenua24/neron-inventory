@@ -15,7 +15,7 @@ import {
     addEmployeeToClient,
     updateEmployee,
     deleteEmployee
-} from '@/lib/storage';
+} from '@/lib/storage-firestore';
 import {
     setHonorarioForMonth,
     setPaidStatusForMonth
@@ -30,10 +30,10 @@ export const useClients = () => {
         loadClients();
     }, []);
 
-    const loadClients = useCallback(() => {
+    const loadClients = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = getAllClients();
+            const data = await getAllClients();
             setClients(data);
         } catch (error) {
             console.error('Error loading clients:', error);
@@ -43,11 +43,11 @@ export const useClients = () => {
     }, []);
 
     // Crear un nuevo cliente
-    const addClient = useCallback((
+    const addClient = useCallback(async (
         clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt' | 'employees'>
     ) => {
         try {
-            const newClient = createClient({ ...clientData, employees: [] });
+            const newClient = await createClient({ ...clientData, employees: [] });
             setClients(prev => [...prev, newClient]);
             return newClient;
         } catch (error) {
@@ -57,9 +57,9 @@ export const useClients = () => {
     }, []);
 
     // Actualizar un cliente
-    const modifyClient = useCallback((id: string, updates: Partial<Client>) => {
+    const modifyClient = useCallback(async (id: string, updates: Partial<Client>) => {
         try {
-            const updated = updateClient(id, updates);
+            const updated = await updateClient(id, updates);
             if (updated) {
                 setClients(prev =>
                     prev.map(client => client.id === id ? updated : client)
@@ -73,9 +73,9 @@ export const useClients = () => {
     }, []);
 
     // Eliminar un cliente
-    const removeClient = useCallback((id: string) => {
+    const removeClient = useCallback(async (id: string) => {
         try {
-            const success = deleteClient(id);
+            const success = await deleteClient(id);
             if (success) {
                 setClients(prev => prev.filter(client => client.id !== id));
             }
@@ -139,12 +139,12 @@ export const useClients = () => {
     }, [clients, modifyClient]);
 
     // Agregar empleado a un cliente
-    const addEmployee = useCallback((
+    const addEmployee = useCallback(async (
         clientId: string,
         employeeData: Omit<Employee, 'id' | 'createdAt' | 'updatedAt'>
     ) => {
         try {
-            const updated = addEmployeeToClient(clientId, employeeData);
+            const updated = await addEmployeeToClient(clientId, employeeData);
             if (updated) {
                 setClients(prev =>
                     prev.map(client => client.id === clientId ? updated : client)
@@ -158,13 +158,13 @@ export const useClients = () => {
     }, []);
 
     // Actualizar empleado
-    const modifyEmployee = useCallback((
+    const modifyEmployee = useCallback(async (
         clientId: string,
         employeeId: string,
         updates: Partial<Employee>
     ) => {
         try {
-            const updated = updateEmployee(clientId, employeeId, updates);
+            const updated = await updateEmployee(clientId, employeeId, updates);
             if (updated) {
                 setClients(prev =>
                     prev.map(client => client.id === clientId ? updated : client)
@@ -178,11 +178,11 @@ export const useClients = () => {
     }, []);
 
     // Eliminar empleado
-    const removeEmployee = useCallback((clientId: string, employeeId: string) => {
+    const removeEmployee = useCallback(async (clientId: string, employeeId: string) => {
         try {
-            const success = deleteEmployee(clientId, employeeId);
+            const success = await deleteEmployee(clientId, employeeId);
             if (success) {
-                loadClients(); // Recargar para reflejar cambios
+                await loadClients(); // Recargar para reflejar cambios
             }
             return success;
         } catch (error) {

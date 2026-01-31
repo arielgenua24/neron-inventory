@@ -28,12 +28,14 @@ export type Employee = {
   tasks?: string;
 };
 
+export type TaxCategory = 'Monotributista' | 'Resp. inscripto' | 'Otro';
+
 export type Client = {
   id: string;
   name: string;
   cuit: string;
   arcaPassword: string;
-  contact?: string;
+  categoriaFiscal?: TaxCategory;
   monthlyRecords: MonthlyRecords;
   employees: Employee[];
   createdAt: string;

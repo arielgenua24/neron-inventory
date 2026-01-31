@@ -5,7 +5,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Client, Employee } from '@/lib/types';
+import { Client, Employee, TaxCategory } from '@/lib/types';
 
 interface EntityModalProps {
   isOpen: boolean;
@@ -24,11 +24,16 @@ export const EntityModal: React.FC<EntityModalProps> = ({
   type,
   title
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    cuit: string;
+    arcaPassword: string;
+    categoriaFiscal: TaxCategory | '';
+  }>({
     name: '',
     cuit: '',
     arcaPassword: '',
-    contact: ''
+    categoriaFiscal: ''
   });
 
   useEffect(() => {
@@ -37,14 +42,14 @@ export const EntityModal: React.FC<EntityModalProps> = ({
         name: entity.name || '',
         cuit: entity.cuit || '',
         arcaPassword: entity.arcaPassword || '',
-        contact: ('contact' in entity ? entity.contact : '') || ''
+        categoriaFiscal: ('categoriaFiscal' in entity ? entity.categoriaFiscal : '') || ''
       });
     } else {
       setFormData({
         name: '',
         cuit: '',
         arcaPassword: '',
-        contact: ''
+        categoriaFiscal: ''
       });
     }
   }, [entity, isOpen]);
@@ -151,14 +156,18 @@ export const EntityModal: React.FC<EntityModalProps> = ({
 
           {type === 'client' && (
             <div className="form-group">
-              <label htmlFor="contact">Contacto</label>
-              <input
-                id="contact"
-                type="text"
-                value={formData.contact}
-                onChange={(e) => handleChange('contact', e.target.value)}
-                placeholder="Email o teléfono"
-              />
+              <label htmlFor="categoriaFiscal">Categoría Fiscal</label>
+              <select
+                id="categoriaFiscal"
+                value={formData.categoriaFiscal}
+                onChange={(e) => handleChange('categoriaFiscal', e.target.value as TaxCategory)}
+                className="select-input"
+              >
+                <option value="">Seleccionar categoría</option>
+                <option value="Monotributista">Monotributista</option>
+                <option value="Resp. inscripto">Resp. inscripto</option>
+                <option value="Otro">Otro</option>
+              </select>
             </div>
           )}
 
@@ -289,7 +298,8 @@ export const EntityModal: React.FC<EntityModalProps> = ({
           color: hsl(var(--destructive));
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group .select-input {
           width: 100%;
           padding: 0.875rem 1rem;
           border: 1.5px solid hsl(var(--border) / 0.5);
@@ -302,11 +312,13 @@ export const EntityModal: React.FC<EntityModalProps> = ({
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
-        .form-group input:hover {
+        .form-group input:hover,
+        .form-group .select-input:hover {
           border-color: hsl(var(--border));
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group .select-input:focus {
           outline: none;
           border-color: hsl(var(--primary));
           background: hsl(var(--card));

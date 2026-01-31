@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Send, X, Loader2, Bot, Cpu, Zap } from "lucide-react";
-import { getAllClients } from "@/lib/storage";
+import { getAllClients } from "@/lib/storage-firestore";
 
 interface Message {
   id: string;
@@ -13,6 +14,7 @@ interface Message {
 }
 
 export const GeminiChat: React.FC = () => {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -35,6 +37,11 @@ export const GeminiChat: React.FC = () => {
     }
   }, [isExpanded]);
 
+  // Only show chatbot on home page
+  if (pathname !== "/") {
+    return null;
+  }
+
   const handleSubmit = async () => {
     if (!inputValue.trim() || isLoading) return;
 
@@ -52,7 +59,7 @@ export const GeminiChat: React.FC = () => {
 
     try {
       // Get current clients data for context
-      const clientsData = getAllClients();
+      const clientsData = await getAllClients();
 
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -68,7 +75,8 @@ export const GeminiChat: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Error al obtener respuesta");
+        const errorMsg = data.details ? `${data.error}\nDetalles: ${data.details}` : data.error;
+        throw new Error(errorMsg || "Error al obtener respuesta");
       }
 
       const assistantMessage: Message = {
